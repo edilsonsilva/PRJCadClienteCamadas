@@ -1,17 +1,27 @@
 package com.prjcadcliente.view;
 
-import java.awt.BorderLayout;
 import java.awt.EventQueue;
-
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.border.EmptyBorder;
-import javax.swing.JLabel;
-import javax.swing.JTextField;
 import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JButton;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
+
+import com.prjcadcliente.dominio.Cliente;
+import com.prjcadcliente.persistencia.CRUDCliente;
 
 public class GerenciarClientes extends JFrame {
 
@@ -21,6 +31,8 @@ public class GerenciarClientes extends JFrame {
 	private JTextField txtTelefone;
 	private JTextField txtIdade;
 	private JTable tbClientesCadastrados;
+	private Cliente cliente;
+	private CRUDCliente crud;
 
 	/**
 	 * Launch the application.
@@ -42,6 +54,12 @@ public class GerenciarClientes extends JFrame {
 	 * Create the frame.
 	 */
 	public GerenciarClientes() {
+		
+		
+		//vamos instanciar as classes Cliente e CRUD
+		cliente = new Cliente();
+		crud = new CRUDCliente();		
+		
 		setResizable(false);
 		setTitle("Gerenciar Clientes");
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -92,14 +110,77 @@ public class GerenciarClientes extends JFrame {
 		txtIdade.setColumns(10);
 		
 		JButton btnCadastrar = new JButton("Cadastrar");
+		btnCadastrar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				//Passar os dados do formulário para o objeto cliente
+				cliente.setNome(txtNome.getText());
+				
+				cliente.setEmail(txtEmail.getText());
+				
+				cliente.setTelefone(txtTelefone.getText());
+				
+				cliente.setIdade(Integer.parseInt(txtIdade.getText()));
+				
+				String retorno = crud.cadastrar(cliente);
+				
+				JOptionPane.showMessageDialog(null, retorno);
+				
+				txtNome.setText("");
+				txtEmail.setText("");
+				txtTelefone.setText("");
+				txtIdade.setText("");
+				
+				
+			}
+		});
 		btnCadastrar.setBounds(25, 271, 128, 23);
 		contentPane.add(btnCadastrar);
 		
 		JButton btnAtualizar = new JButton("Atualizar");
+		btnAtualizar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				String id = JOptionPane.showInputDialog("Digite o Id do cliente");
+				
+				//Passar os dados do formulário para o objeto cliente
+				cliente.setNome(txtNome.getText());
+				cliente.setEmail(txtEmail.getText());
+				cliente.setTelefone(txtTelefone.getText());
+				cliente.setIdade(Integer.parseInt(txtIdade.getText()));
+				cliente.setId(Integer.parseInt(id));
+				
+				String retorno = crud.atualizar(cliente);
+				
+				JOptionPane.showMessageDialog(null, retorno);
+				
+				txtNome.setText("");
+				txtEmail.setText("");
+				txtTelefone.setText("");
+				txtIdade.setText("");
+				id="0";
+				
+				
+				
+				
+				
+			}
+		});
 		btnAtualizar.setBounds(163, 271, 128, 23);
 		contentPane.add(btnAtualizar);
 		
 		JButton btnDeletar = new JButton("Deletar");
+		btnDeletar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				
+				String id = JOptionPane.showInputDialog("Digite o Id do cliente para apagar");
+				
+				cliente.setId(Integer.parseInt(id));
+				
+				JOptionPane.showMessageDialog(null, crud.deletar(cliente));			
+				
+			}
+		});
 		btnDeletar.setBounds(301, 271, 128, 23);
 		contentPane.add(btnDeletar);
 		
@@ -111,7 +192,22 @@ public class GerenciarClientes extends JFrame {
 		scrollPane.setBounds(25, 310, 542, 186);
 		contentPane.add(scrollPane);
 		
-		tbClientesCadastrados = new JTable();
+		String[] colunas = {"Id","Nome","E-Mail","Telefone","Idade"};
+		
+		Object[][] dados = {
+								{15,"Roberto","roberto@gm.com","11",12},
+								{21,"Vanessa","vanessa@gm.com","11",32},
+								{55,"Verônica","v@gm.com","11",65},
+								{95,"Tadeu","tadeu@gm.com","11",42}
+																
+							};
+		
+		//Vamos construtir o modelo de dados para exibir na tabela
+		DefaultTableModel modelo = new DefaultTableModel(dados,colunas);
+		
+		tbClientesCadastrados = new JTable(modelo);
 		scrollPane.setViewportView(tbClientesCadastrados);
+		
+		
 	}
 }
